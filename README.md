@@ -1,140 +1,87 @@
-TODO:
-- SemanticUI uses class components in some examples - could we use a different library?
+# Starter Kit
 
-# Get started
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
-Clone this project on your local machine.
-After cloning the project, we will create the local database that the project will use.
+- [x] Full stack ES8+ with [Babel]
+- [x] [Node] LTS support (verified working on 12.x, 14.x and 16.x LTS releases)
+- [x] [Express] server
+- [x] [React] client with [Webpack]
+- [x] Client-side routing with [React Router]
+- [x] Linting with [ESLint] and [Prettier]
+- [x] Dev mode (watch modes for client and server, proxy to avoid CORS issues)
+- [x] Production build (single deployment artifact, React loaded via CDN)
+- [x] [Heroku] deployment
+- [x] [Cloud Foundry] deployment
+- [x] [Docker] build
+- [x] [Postgres] database with [node-postgres]
 
-## Database
+## Setup
 
-- Open the terminal, and `cd` into `server`
-- `npm install`
-- Create your database: 
-    - Option 1:
-        - `createdb final_project`
-    - Option 2:
-        ```bash
-      sudo -i -u postgres
-      create database final_project  
-      ```
-      
-- Create a DB user - run the below 
-    1. `psql final_project`
-    2. `create user app_user password 'password';`
-    3. `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO app_user;`
-    4. `GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO app_user;`
+Pick one member of the team to own the repository and pipeline. That person should do the following:
 
-- `npm run recreate-db:local` (this will create and populate your new team's DB)
+1.  Click the "Use this template" button above (see [GitHub's docs][1]) to create your team repository, select "Include all branches" and name it something appropriate for your project.
+2.  In your new repo, go to "Settings", then "Branches", then switch the default branch to `postgres` (_optional_: you can now delete the old `main` branch and rename `postgres` to `main`, `master` or whatever else you'd like) - see [GitHub's docs][2] again
+3.  In your repo, click the "Deploy to Heroku" button at the top of the README and create a Heroku account when prompted.
+4.  Fill in the name of the application, select Europe and then click "Deploy App".
+5.  Once it has deployed successfully, click the "Manage app" button to view the application details.
+6.  Go to the "Deploy" tab, select "Connect to GitHub" and choose your repo.
+7.  Click "Enable automatic deploys".
 
-## Test it all works
+Whenever you commit to main (or e.g. merge a [pull request]) it will get automatically deployed!
 
-Now let us test that the whole stack works (the `React frontend` connects to the `Node API` which connects to the `Postgres Database` )
+You should now make sure all of the project team are [collaborators] on the repository.
 
-- In the server folder, run `npm run dev`
-- Open a new terminal window or tab, navigate to `client` and do `npm install`
-- Then run `npm run dev` in the client folder
+## Scripts
 
-Once the React website opens in a browser. Navigate to the _Status_ page, and you should see two users listed in the page. This means everything works fine.
+Various scripts are provided in the package file, but many are helpers for other scripts; here are the ones you'll
+commonly use:
 
-# Development Process
-Read the [Development process](CONTRIBUTING.md).
+- `dev`: starts the frontend and backend in dev mode, with file watching (note that the backend runs on port 3100, and
+  the frontend is proxied to it).
+- `lint`: runs ESLint and Prettier against all the code in the project.
+- `serve`: builds and starts the app in production mode locally.
 
-> IMPORTANT: Make sure you read and understand the development process guidelines before starting any work. Ask mentors for explanation if you have any questions.
+### Debugging
 
-# Project structure
+While running the dev mode using `npm run dev`, you can attach the Node debugger to the server process via port 9229.
+If you're using VS Code, a debugging configuration is provided for this.
 
-The project is divided into `client` folder for the React frontend, and a `server` folder for the node API and database side.
+There is also a VS Code debugging configuration for the Chrome debugger, which requires the recommended Chrome
+extension, for debugging the client application.
 
-> This structure is called a mono repo. As opposed to having two repos (one for client, another for server), we opted for a `monorepo`.
+### Security
 
-## The Client
+If the project handles **any kind of** Personally Identifiable Information (PII) then make sure the following
+principles are followed:
 
-The client is a React app created with [create-react-app](https://create-react-app.dev/). In addition to the default setup, we have added [React Router](https://reacttraining.com/react-router/) with 3 routes for testing
+- Only collect **strictly necessary** PII;
+- Access to PII should be as restricted as possible;
+- Access to PII should only be possible after authentication. Authentication **must be done** via GitHub. **Ad hoc
+  authentication solutions are not allowed**;
+- Admins must be able to control who has access to the platform and at which levels using only GitHub groups;
+- There must be an audit mechanism in place. It is required by law to know who accessed what and when;
+- Code must be reviewed by senior developers before being pushed to production;
+- APIs must be secure. Make sure we are not handling security on the frontend.
 
-- The `components` live in the `components` folder. When the project gets bigger, we might separate them into logical folders (i.e. `components/admin` for admin-related components, and `components/profile` for user profile-related components)
+### Troubleshooting
 
-- The `api` folder contains modules to call a specific API, i.e. when you add a new endpoint to list, create and update _jobs_ then you can add a new module called `api/jobs.js` that can contain methods such as `getJobs, createJob, deleteJob ...`.
+See the guidance in the [wiki].
 
-- Styles are in the folder `client/styles`. Each file in that folder will contain styles related to a specific component (and have the same name), i.e. a component called `About.js` might define styles in `styles/About.css` and import them.
-
-### Component library
-
-We will use [Semantic UI](https://react.semantic-ui.com/) component library for the projects. Check out the documentation to get familiar with it.
-
-## Server
-
-The API is implemented using [Express](https://expressjs.com/) framework. We have added some extra functionality, such as a simple authentication solution.
-
-- `db` folder contains the script to create the database and to seed it with sample data
-    - Your actual database schema will go in `server/db/recreate-schema.sql`
-    - and you can add sample test data in `server/db/populate-db.sql`
-    - run `npm run recreate-db:local` - you'll need to do this anytime you change any of the above files!
-
-- `services` folder contain `database` services. These are modules to manipulate a certain entity in the database. For example, if you have a table called `documents`, you might add a module `services/database/documents` that will expose methods like `addDocument, getDocumentById` and implement an `SQL` statement to perform the required functionality.
-
-- `api` When you add a new API, for example for managing `questions`. You can add it at `api/index.js`. This will define the _prefix_ so for example, 
-
-```js
-const questions = require('./questions');
-router.use('/questions', questions);
-```
-
-and in `questions` module you will define the routes. Note these will all be prefixed with _questions_.
-
-For example
-
-```js
-// questions.js
-const express = require('express');
-const router = express.Router();
-
-// This route is GET /questions/ (because everything in this file is "mounted" on the prefix questions from the previous step)
-router.get('/', (req, res) => {
-    res.send('All good')
-});
-
-module.exports = router;
-```
-
-This structure using `Express.Router` allows our code to be _modular_ and minimise conflict between team members. You can read more about [Express Router](expressjs.com/en/guide/routing.html#express-router)
-
-> Typically a server-side user story will involve:
-> 1. Define a table in `db/recreate-schema.sql`
-> 2. Create an API endpoint `api/some_table.js`
-> 3. Create a service under `services/databases/some_table.js` (this will contain the SQL to connect the API and the database)
-
-
-## Authentication and Authorisation
-
-The project has routes and services to implement an authentication / authorisation solution. It depends on [passportjs](http://www.passportjs.org/) library, and implements an authentication strategy called JWT. To understand more authentication, you can read [this article](https://medium.com/front-end-weekly/learn-using-jwt-with-passport-authentication-9761539c4314).
-
-To test authentication:
-
-- In Postman, do a *GET* on `http://localhost:4000/api/status/protected`. You should receive a `403` (Forbidden) as a response.
-
-- Register a user by doing a *POST* to `http://localhost:4000/auth/register` with the body looking like: 
-
-```json
-{
-    "email": "myemail@gmail.com",
-    "password": "mypassword"
-}
-```
-
-Don't forget to set the `content-type` to `raw` and `application/json`
-
-- Now you can login by doing a *POST* to `http://localhost:4000/auth/login` with a body similar to:
-
-```json
-{
-    "email": "myemail@gmail.com",
-    "password": "mypassword"
-}
-```
-
-This will bring you back a `token`. Copy the token you get in the response.
-
-- Now, we can use this token for the `status/protected` route. Do a *GET* request to `http://localhost:4000/api/status/protected` and add a `header` with the name `Authorization` and the value: `Bearer the_token_from_previous step`, i.e. `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTU2NTkwOTU4OX0.qidn4r7nrolFByyfd956Kh8BkOhwcaUSzyUK0V7su1c`
-
-Here is a sample Pull Request to implement Login on the client: https://github.com/CodeYourFuture/scot-graduation-project/pull/34
+[1]: https://docs.github.com/en/free-pro-team@latest/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template#creating-a-repository-from-a-template
+[2]: https://docs.github.com/en/github/administering-a-repository/managing-branches-in-your-repository
+[babel]: https://babeljs.io/
+[cloud foundry]: https://www.cloudfoundry.org/
+[collaborators]: https://help.github.com/en/articles/inviting-collaborators-to-a-personal-repository
+[docker]: https://www.docker.com
+[eslint]: https://eslint.org/
+[express]: https://expressjs.com/
+[heroku]: https://www.heroku.com/
+[node]: https://nodejs.org/en/
+[node-postgres]: https://node-postgres.com/
+[postgres]: https://www.postgresql.org/
+[prettier]: https://prettier.io/
+[pull request]: https://help.github.com/en/articles/about-pull-requests
+[react]: https://reactjs.org/
+[react router]: https://reactrouter.com/web
+[webpack]: https://webpack.js.org/
+[wiki]: https://github.com/textbook/starter-kit/wiki

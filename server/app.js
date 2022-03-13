@@ -1,36 +1,40 @@
-const SERVER_PORT = process.env.PORT || 4000;
-const express = require("express");
-const path = require("path");
-const cors = require("cors");
+import express from "express";
+import morgan from "morgan";
+import path from "path";
+
+// categorising APIs
+import userRoute from "./routes/user";
+import starRoute from "./routes/star";
+import authRoute from "./routes/auth";
+
+import {
+	configuredHelmet,
+	httpsOnly,
+	logErrors,
+	pushStateRouting,
+} from "./middleware";
+
+const staticDir = path.join(__dirname, "static");
 
 const app = express();
-const api = require("./api");
-const auth = require("./auth/routes");
 
-require("./auth/passport");
-
-/**
- * register middleware
- */
 app.use(express.json());
-app.use(cors());
+app.use(configuredHelmet());
+app.use(morgan("dev"));
 
-/**
- * register routes
- */
-app.use("/auth", auth);
-app.use("/api", api);
-
-/**
- * In development environemnt, we use the create-react-app dev server.
- * In production, the static build is served from here
- */
-//
-if (process.env.NODE_ENV !== "development") {
-  app.use("/", express.static(path.resolve(__dirname, "../client/build")));
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
-  });
+if (app.get("env") === "production") {
+	app.enable("trust proxy");
+	app.use(httpsOnly());
 }
 
-app.listen(SERVER_PORT, () => console.log(`Server running on ${SERVER_PORT}`));
+// using middleware in order to routing
+app.use("/api/user", userRoute);
+app.use("/api/stars", starRoute)
+app.use("/api/auth", authRoute)
+
+app.use(express.static(staticDir));
+app.use(pushStateRouting("/api", staticDir));
+
+app.use(logErrors());
+
+export default app;
